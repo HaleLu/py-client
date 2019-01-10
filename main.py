@@ -94,6 +94,7 @@ def change_city(province_name, city_name):
         print(u'VPS站点无法连接\nException:\n' + str(e))
         return False
 
+    task_pool.wait()
     params['arg'] = 'update_area'
     if len(cities) != 0:
         # 换地区
@@ -106,15 +107,21 @@ def change_city(province_name, city_name):
                 json_data = res.json()
                 if json_data.has_key('response') and len(json_data['response']) > 0 and int(json_data['response']['errorCode']) < 0:
                     print(u'VPS站点切换失败:' + json_data['response']['msg'])
+                    if check_adsl():
+                        return True
                     continue
                 if json_data['result'] != u'ok':
                     print(res.text)
                     print(u'切换到srvid为' + city['srvid'] + u'的VPS站点失败.')
+                    if check_adsl():
+                        return True
                     continue
                 print(u'成功切换到' + json_data['responseBody']['areaname'])
                 return True
             except Exception as e:
                 print(u'切换到srvid为' + city['srvid'] + u'的VPS站点失败.\nException:\n' + str(e))
+                if check_adsl():
+                    return True
                 continue
 
     print(u'找不到同市的VPS站点')
