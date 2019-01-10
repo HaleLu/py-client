@@ -65,7 +65,7 @@ def change_city(province_name, city_name):
     try:
         res = requests.get(VPS_URL, params)
         json_data = res.json()
-        if json_data['response'] and int(json_data['response']['errorCode']) < 0:
+        if json_data.has_key('response') and len(json_data['response']) > 0 and int(json_data['response']['errorCode']) < 0:
             print(u'VPS账号登录失败:' + json_data['response']['msg'])
             return False
         params['groupid'] = json_data['responseBody']['groupid']
@@ -74,6 +74,7 @@ def change_city(province_name, city_name):
             print(res.text)
         print(u'VPS站点无法连接\nException:\n' + str(e))
         return False
+    print(u'登陆成功')
 
     # 获取VPS列表
     params['arg'] = 'area'
@@ -93,41 +94,41 @@ def change_city(province_name, city_name):
             print(res.text)
         print(u'VPS站点无法连接\nException:\n' + str(e))
         return False
-    if len(cities) == 0:
-        print(u'找不到可用的' + province_name + city_name + u'的VPS站点')
-        return False
 
-    # 换地区
-    params.pop('groupid')
     params['arg'] = 'update_area'
-    for city in random.shuffle(cities):
-        try:
-            params['srvid'] = city['srvid']
-            res = requests.get(VPS_URL, params)
-            json_data = res.json()
-            if json_data['response'] and int(json_data['response']['errorCode']) < 0:
-                print(u'VPS站点切换失败:' + json_data['response']['msg'])
+    if len(cities) != 0:
+        # 换地区
+        params.pop('groupid')
+        random.shuffle(cities)
+        for city in cities:
+            try:
+                params['srvid'] = city['srvid']
+                res = requests.get(VPS_URL, params)
+                json_data = res.json()
+                if json_data.has_key('response') and len(json_data['response']) > 0 and int(json_data['response']['errorCode']) < 0:
+                    print(u'VPS站点切换失败:' + json_data['response']['msg'])
+                    continue
+                if json_data['result'] != u'ok':
+                    print(res.text)
+                    print(u'切换到srvid为' + city['srvid'] + u'的VPS站点失败.')
+                    continue
+                print(u'成功切换到' + json_data['responseBody']['areaname'])
+                return True
+            except Exception as e:
+                print(u'切换到srvid为' + city['srvid'] + u'的VPS站点失败.\nException:\n' + str(e))
                 continue
-            if json_data['result'] != u'ok':
-                print(res.text)
-                print(u'切换到srvid为' + city['srvid'] + u'的VPS站点失败.')
-                continue
-            print(u'成功切换到' + json_data['responseBody']['areaname'])
-            return True
-        except Exception as e:
-            print(u'切换到srvid为' + city['srvid'] + u'的VPS站点失败.\nException:\n' + str(e))
-            continue
 
     print(u'找不到同市的VPS站点')
     cities = [city for city in json_data['list']
               if province_name in city['areaname'].encode('utf8')
               and city['status'] == u'1']
-    for city in random.shuffle(cities):
+    random.shuffle(cities)
+    for city in cities:
         try:
             params['srvid'] = city['srvid']
             res = requests.get(VPS_URL, params)
             json_data = res.json()
-            if json_data['response'] and int(json_data['response']['errorCode']) < 0:
+            if json_data.has_key('response') and len(json_data['response']) > 0 and int(json_data['response']['errorCode']) < 0:
                 print(u'VPS站点切换失败:' + json_data['response']['msg'])
                 continue
             if json_data['result'] != u'ok':
@@ -296,7 +297,7 @@ def main():
         time.time())) + u'] 程序开始运行.')
 
     cur_task_index = 0
-    while True:
+    for x in xrange(0, 10):
         try:
             print(u'开始执行...')
             print(u'[' + time.strftime('%Y-%m-%d %H:%M:%S',
