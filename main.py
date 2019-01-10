@@ -86,8 +86,7 @@ def change_city(province_name, city_name):
             print(u'VPS站点服务器列表获取失败.')
             return False
         cities = [city for city in json_data['list']
-                  if province_name in city['areaname'].encode('utf8')
-                  and city_name in city['areaname'].encode('utf8')
+                  if city_name in city['areaname'].encode('utf8')
                   and city['status'] == u'1']
     except Exception as e:
         if res is not None:
