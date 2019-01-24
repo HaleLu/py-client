@@ -2,6 +2,7 @@
 import ConfigParser
 import codecs
 import random
+import threading
 import time
 import requests
 import threadpool
@@ -153,6 +154,13 @@ def change_city(province_name, city_name):
     return False
 
 
+def kill(p):
+    try:
+        p.kill()
+    except OSError:
+        pass
+
+
 def redial():
     """
     切换IP
@@ -161,17 +169,23 @@ def redial():
         time.time())) + u'] 更换IP...')
     try:
         # logging.info('Start Change IP...')
-        subprocess.call(
+        p = subprocess.Popen(
             u'Rasdial {0} /d'.format(ADSL_NAME).encode(
                 sys.getfilesystemencoding()),
             shell=True)
-        time.sleep(5)
-        subprocess.call(
+        t = threading.Timer(5, kill, [p])
+        t.start()
+        p.wait()
+        t.cancel()
+        p = subprocess.Popen(
             u'Rasdial {0} {1} {2}'.format(ADSL_NAME, ADSL_ACCOUNT,
                                           ADSL_PASSWORD).encode(
                 sys.getfilesystemencoding()),
             shell=True)
-        time.sleep(8)
+        t = threading.Timer(8, kill, [p])
+        t.start()
+        p.wait()
+        t.cancel()
     except:
         logging.exception(traceback.format_exc())
         time.sleep(20)
