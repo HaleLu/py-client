@@ -259,6 +259,9 @@ def do_task(data):
 
                 for h in v_headers:
                     key_val = h.split(':')
+                    if len(key_val) != 2:
+                        print(u'> header格式有误，请服务端修正. \r\n')
+                        return
                     headers[key_val[0].strip()] = key_val[1].strip()
 
                 url = on_task['url']
