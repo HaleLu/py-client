@@ -45,6 +45,7 @@ def change_city(province_name, city_name):
     # type: (str, str) -> bool
     if VPS_ENABLE == 0:
         return False
+    print(u'尝试切换城市')
 
     # 处理省市名
     if province_name.endswith('市'):
@@ -60,10 +61,11 @@ def change_city(province_name, city_name):
         print(u'收到的cityName非“市”结尾.')
 
     # 尝试登录
+    print(u'尝试登录')
     params = {'username': ADSL_ACCOUNT, 'password': ADSL_PASSWORD, 'arg': 'login_info', 'qu': VPS_QU}
     res = None
     try:
-        res = requests.get(VPS_URL, params)
+        res = requests.get(VPS_URL, params, timeout=10)
         json_data = res.json()
         if json_data.has_key('response') and len(json_data['response']) > 0 and int(json_data['response']['errorCode']) < 0:
             print(u'VPS账号登录失败:' + json_data['response']['msg'])
@@ -79,7 +81,7 @@ def change_city(province_name, city_name):
     # 获取VPS列表
     params['arg'] = 'area'
     try:
-        res = requests.get(VPS_URL, params)
+        res = requests.get(VPS_URL, params, timeout=10)
         json_data = res.json()
         if json_data['code'] != u'1':
             print(res.text)
@@ -103,7 +105,7 @@ def change_city(province_name, city_name):
         for city in cities:
             try:
                 params['srvid'] = city['srvid']
-                res = requests.get(VPS_URL, params)
+                res = requests.get(VPS_URL, params, timeout=10)
                 json_data = res.json()
                 if json_data.has_key('response') and len(json_data['response']) > 0 and int(json_data['response']['errorCode']) < 0:
                     if check_adsl():
@@ -132,7 +134,7 @@ def change_city(province_name, city_name):
     for city in cities:
         try:
             params['srvid'] = city['srvid']
-            res = requests.get(VPS_URL, params)
+            res = requests.get(VPS_URL, params, timeout=10)
             json_data = res.json()
             if json_data.has_key('response') and len(json_data['response']) > 0 and int(json_data['response']['errorCode']) < 0:
                 print(u'VPS站点切换失败:' + json_data['response']['msg'])
