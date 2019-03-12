@@ -207,8 +207,9 @@ def get_task(username, password):
               u'] 正在获取任务....')
         try:
             res = requests.get(url, params=params, headers=headers, timeout=10)
-            res.encoding = res.apparent_encoding
-            print(res.text.encode(res.encoding))
+            # res.encoding = res.apparent_encoding
+            # print(res.text.encode(res.encoding))
+            print(res.text)
             if res.status_code == 200:
                 json_data = res.json()
                 break
