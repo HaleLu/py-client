@@ -44,7 +44,7 @@ def check_adsl():
 
 def change_city(province_name, city_name):
     # type: (str, str) -> bool
-    if VPS_ENABLE == 0:
+    if int(VPS_ENABLE) == 0:
         return False
     print(u'尝试切换城市')
 
@@ -163,29 +163,27 @@ def kill(p):
 
 def redial():
     """
-    切换IP
+    重播号
     """
     print(u'[' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(
-        time.time())) + u'] 更换IP...')
+        time.time())) + u'] 重播号...')
     try:
-        # logging.info('Start Change IP...')
-        p = subprocess.Popen(
+        result = subprocess.check_output(
             u'Rasdial {0} /d'.format(ADSL_NAME).encode(
-                sys.getfilesystemencoding()),
-            shell=True)
-        t = threading.Timer(5, kill, [p])
-        t.start()
-        p.wait()
-        t.cancel()
+                sys.getfilesystemencoding()))
+        if result.find('756') >= 0:
+            subprocess.call("shutdown /r /t 0")
         p = subprocess.Popen(
             u'Rasdial {0} {1} {2}'.format(ADSL_NAME, ADSL_ACCOUNT,
                                           ADSL_PASSWORD).encode(
                 sys.getfilesystemencoding()),
             shell=True)
-        t = threading.Timer(8, kill, [p])
+        t = threading.Timer(20, kill, [p])
         t.start()
         p.wait()
         t.cancel()
+        if not check_adsl():
+            subprocess.call("shutdown /r /t 0")
     except:
         logging.exception(traceback.format_exc())
         time.sleep(20)
@@ -209,7 +207,8 @@ def get_task(username, password):
               u'] 正在获取任务....')
         try:
             res = requests.get(url, params=params, headers=headers, timeout=10)
-            print(res.text)
+            res.encoding = res.apparent_encoding
+            print(res.text.encode(res.encoding))
             if res.status_code == 200:
                 json_data = res.json()
                 break
