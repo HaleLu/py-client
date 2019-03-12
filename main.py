@@ -333,8 +333,9 @@ def main():
 
             task = get_task(USER_NAME, PASS_WORD)
             if task is None:
-                print(u'[' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + u'] 获取任务失败，重新拨号....')
-                redial()
+                print(u'[' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + u'] 获取任务失败，等待10秒....')
+                # redial()
+                time.sleep(10)
                 continue
 
             if cur_task_index >= 20:
