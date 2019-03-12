@@ -172,7 +172,7 @@ def redial():
             u'Rasdial {0} /d'.format(ADSL_NAME).encode(
                 sys.getfilesystemencoding()))
         if result.find('756') >= 0:
-            subprocess.call("shutdown /r /t 0")
+            exit('756')
         p = subprocess.Popen(
             u'Rasdial {0} {1} {2}'.format(ADSL_NAME, ADSL_ACCOUNT,
                                           ADSL_PASSWORD).encode(
@@ -183,7 +183,7 @@ def redial():
         p.wait()
         t.cancel()
         if not check_adsl():
-            subprocess.call("shutdown /r /t 0")
+            exit('756')
     except:
         logging.exception(traceback.format_exc())
         time.sleep(20)
